@@ -25,6 +25,8 @@ from datetime import datetime
 from PyQt5.QtMultimedia import QMultimedia, QMediaPlayer, QMediaContent
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import Qt, QSettings
+import csv 
+export_data = 0
 
 class MainWindow(QMainWindow):
        
@@ -34,10 +36,85 @@ class MainWindow(QMainWindow):
       self.pathui=r.resource_path("main.ui")
       loadUi(self.pathui,self)
       #self.createdata()
-      self.getdata()
-      self.connections()
       
+      self.connections()
+      print("val de self settings" + str(self.settings))
+      if self.settings.value("Finder") != None :
+          print("loading du Finder")
+          self.getdata()
+      else:
+            print("passage import")
+            self.importer()
+            
+      if export_data==1:
+            self.export()
+            #self.importer()
+            pass
+      
+    def export(self):
+          filename = r.resource_path("save.csv")
+           
+          with open(filename, 'w') as csvfile:
+            csvwriter = csv.writer(csvfile) 
+            print(self.finder.path)
+            print(self.finder.dico)
+            csvwriter.writerow([self.finder.path,"Reponses"])
+            recuptuples =list(self.finder.dico.items())
+            for i in range(len(recuptuples)) : 
+                recuptuples[i] = (recuptuples[i][0],recuptuples[i][1],self.finder.reponses[i])
+              
+              
+            for tuple in recuptuples :
+                csvwriter.writerow([tuple[0],tuple[1],tuple[2]]) 
+            
 
+            print(self.finder.reponses)
+          print(self.results)
+    
+    def importer(self):
+        filename = r.resource_path("save.csv")
+        filename2 = r.resource_path("reponses.csv")
+        place = r.resource_path("data/")
+        self.finder = r.LetsGoo(place)
+        self.results=[]
+        with open(filename, 'r') as csvfile:
+          csvFile = csv.reader(csvfile)
+          #self.finder.path = csvFile[0]
+          # displaying the contents of the CSV file
+          self.finder.reponses = []
+
+          for lines in csvFile:
+            
+            self.finder.dico[lines[0]]=lines[1]
+            ##A est bien la reponse, où était elle stock avant
+            
+
+          with open(filename2, 'r') as csvfile:
+            csvFile = csv.reader(csvfile)
+          #self.finder.path = csvFile[0]
+          # displaying the contents of the CSV file
+            self.finder.reponses = []
+            self.finder.addrep("ladataaaa")
+            
+            for lines in csvfile:
+              ##A est bien la reponse, où était elle stock avant
+                a= lines
+                self.finder.addrep(a)
+
+
+          listkey=list(self.finder.dico.keys())
+          for key in listkey :
+                if key.__contains__("data"):
+                      self.finder.path=key
+
+          print(self.finder.reponses)
+          self.settings.setValue("Finder",self.finder)
+          self.settings.setValue("Results",self.results)
+
+          print(self.finder.reponses)
+          self.rangImg=0
+         
+        
     def createdata(self):
         place = r.resource_path("data/")
         self.finder = r.LetsGoo(place)

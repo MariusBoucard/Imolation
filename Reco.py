@@ -67,8 +67,12 @@ class LetsGoo():
         text = pytesseract.image_to_string(img) 
         return text
 
+    def addrep(self,a):
+        self.reponses.append(a)
 
     def request(self,request):
+        print("Lancement requete : \n\n\n\n")
+        print(self.reponses)
         listchemins = []
         for path in self.dico.keys():
             if self.dico[path].__contains__(request):
@@ -80,6 +84,7 @@ class LetsGoo():
                 print("path = "+path2)
                 num=int(path2)
                 try : 
+                    print(self.reponses)
                     reponse = self.reponses[num]
                 except : 
                     reponse = "ca a chié"
